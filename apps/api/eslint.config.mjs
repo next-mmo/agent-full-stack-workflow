@@ -17,7 +17,20 @@ export default tseslint.config(
       },
     },
     rules: {
-      '@typescript-eslint/no-explicit-any': 'error'
-    }
-  }
+      '@typescript-eslint/no-explicit-any': 'error',
+    },
+  },
+  {
+    files: ['test/**/*.ts', 'src/**/*.spec.ts'],
+    rules: {
+      // Jest/Supertest expose intentionally dynamic test surfaces (for example
+      // Response.body). Keep type-aware lint strict in production source while
+      // avoiding noisy unsafe-* findings in test adapters.
+      '@typescript-eslint/no-unsafe-assignment': 'off',
+      '@typescript-eslint/no-unsafe-argument': 'off',
+      '@typescript-eslint/no-unsafe-call': 'off',
+      '@typescript-eslint/no-unsafe-member-access': 'off',
+      '@typescript-eslint/no-unsafe-return': 'off',
+    },
+  },
 )

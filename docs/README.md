@@ -11,6 +11,7 @@ Use this page to find the authoritative document instead of duplicating rules ac
 | `SECURITY_MODEL.md` | Security/trust/prompt-injection/data model | security boundary/policy changes |
 | `AI_REVIEW_POLICY.md` | Claude/Codex advisory review governance | AI reviewer/auth/permission changes |
 | `INTEGRATIONS.md` | Jira/Figma/MCP integration policy | approved integration/access changes |
+| `ENVIRONMENTS.md` | Environment/configuration/data/secret separation | environment/configuration policy changes |
 | `RELEASES.md` | Release, migration promotion, rollback | release/deployment policy changes |
 | `OPERATIONS.md` | Observability, incidents, backup/restore runbook | operational/on-call behavior changes |
 | `ENTERPRISE_READINESS.md` | Production-readiness checklist | external/repo controls change |
@@ -18,6 +19,16 @@ Use this page to find the authoritative document instead of duplicating rules ac
 | `adr/` | Durable architecture decisions | significant decision with trade-offs |
 | `plans/` | Implementation-ready plans | substantial feature/project planning |
 | `solutions/` | Reusable learned solutions | issue/incident/debug learning is worth preserving |
+
+Root documents:
+
+| Document | Purpose |
+|---|---|
+| `../README.md` | entry point / architecture summary / onboarding |
+| `../AGENTS.md` | portable repository rules for coding agents |
+| `../CLAUDE.md` | Claude Code routing/memory |
+| `../CONTRIBUTING.md` | contributor workflow |
+| `../SECURITY.md` | vulnerability-reporting policy |
 
 ## Reading paths
 
@@ -66,6 +77,7 @@ architecture reviewer + human owner
 ### Release / incident
 
 ```text
+ENVIRONMENTS.md
 RELEASES.md
 OPERATIONS.md
 SECURITY_MODEL.md

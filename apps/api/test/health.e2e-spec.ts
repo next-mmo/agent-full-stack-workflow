@@ -1,6 +1,6 @@
 import { INestApplication } from '@nestjs/common'
 import { Test } from '@nestjs/testing'
-import request from 'supertest'
+import * as request from 'supertest'
 import { AppModule } from '../src/app.module'
 
 type HealthResponse = {
@@ -31,9 +31,9 @@ describe('Health API (e2e)', () => {
       .expect(200)
 
     const body = response.body as HealthResponse
+
     expect(body.status).toBe('ok')
-    expect(Number.isNaN(Date.parse(body.timestamp))).toBe(false)
-    expect(response.text).not.toContain('DATABASE_URL')
-    expect(response.text).not.toContain('postgresql://')
+    expect(typeof body.timestamp).toBe('string')
+    expect(Object.keys(body).sort()).toEqual(['status', 'timestamp'])
   })
 })

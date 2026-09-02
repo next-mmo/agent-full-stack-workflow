@@ -1,6 +1,16 @@
-import { Body, Controller, Delete, Get, Param, Patch, Post } from '@nestjs/common'
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Param,
+  Patch,
+  Post,
+  Query,
+} from '@nestjs/common'
 import { ApiTags } from '@nestjs/swagger'
 import { CreateTodoDto } from './dto/create-todo.dto'
+import { ListTodosQueryDto } from './dto/list-todos-query.dto'
 import { UpdateTodoDto } from './dto/update-todo.dto'
 import { TodosService } from './todos.service'
 
@@ -10,8 +20,8 @@ export class TodosController {
   constructor(private readonly todosService: TodosService) {}
 
   @Get()
-  list() {
-    return this.todosService.list()
+  list(@Query() query: ListTodosQueryDto) {
+    return this.todosService.list(query)
   }
 
   @Post()

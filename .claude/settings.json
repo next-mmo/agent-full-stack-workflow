@@ -21,6 +21,13 @@
     ]
   },
   "extraKnownMarketplaces": {
+    "claude-plugins-official": {
+      "source": {
+        "source": "github",
+        "repo": "anthropics/claude-plugins-official"
+      },
+      "autoUpdate": true
+    },
     "compound-engineering-plugin": {
       "source": {
         "source": "github",
@@ -30,11 +37,15 @@
     }
   },
   "enabledPlugins": {
-    "compound-engineering@compound-engineering-plugin": true
+    "compound-engineering@compound-engineering-plugin": true,
+    "figma@claude-plugins-official": true,
+    "atlassian@claude-plugins-official": true
   },
   "companyAnnouncements": [
     "AI-assisted changes require human review before merge.",
     "Compound Engineering is the standard planning/review workflow for substantial changes.",
+    "Official Figma and Atlassian plugins are pre-bundled; authenticate only the integrations needed for your work.",
+    "External integrations are read-context-first. Ask before creating/updating Jira/Confluence or writing to Figma unless the user explicitly requested that mutation.",
     "Do not bypass CI, CODEOWNERS, branch protection, or security controls."
   ]
 }

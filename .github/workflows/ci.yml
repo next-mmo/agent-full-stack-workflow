@@ -71,8 +71,11 @@ jobs:
       - name: Build API
         run: pnpm --dir apps/api build
 
-      - name: Build web
-        run: pnpm --dir apps/web build
+      - name: Typecheck web
+        run: pnpm --dir apps/web exec tsc -b
+
+      - name: Bundle web
+        run: pnpm --dir apps/web exec vite build
 
       - name: API e2e
         run: pnpm --dir apps/api test:e2e

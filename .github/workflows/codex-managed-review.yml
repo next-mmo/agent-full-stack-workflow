@@ -1,7 +1,11 @@
 name: Codex Managed Review Trigger
 
+# IMPORTANT SECURITY NOTE:
+# This uses pull_request_target only to post a comment that triggers the
+# already-installed Codex GitHub App. It MUST NOT checkout, build, test,
+# source, or otherwise execute code from the pull request head.
 on:
-  pull_request:
+  pull_request_target:
     types: [opened, synchronize, reopened, ready_for_review]
 
 permissions:

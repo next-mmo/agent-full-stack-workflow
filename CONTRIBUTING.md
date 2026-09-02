@@ -32,14 +32,16 @@ Do not push directly to protected `main`.
 Use pnpm only.
 
 ```bash
-pnpm install
+pnpm install --frozen-lockfile
 pnpm db:up
 pnpm db:generate
 pnpm db:migrate
 pnpm dev
 ```
 
-Before company production use, `pnpm-lock.yaml` must be committed and installs must be frozen/reproducible.
+`pnpm-lock.yaml` is committed and is part of the reviewed dependency contract.
+
+When intentionally changing dependencies, update the manifest and lockfile together with pnpm. Never delete/regenerate the lockfile merely to hide a resolution problem.
 
 ## Architecture changes
 
@@ -72,10 +74,12 @@ Include:
 
 - summary and intent
 - linked Jira/requirement and Figma reference when applicable
-- architecture impact
+- architecture impact and ADR/docs impact
 - validation evidence
 - database/migration impact
 - security/privacy impact
+- dependency/supply-chain impact
+- release/operations impact when applicable
 - risk level
 - rollback plan
 - unresolved questions
@@ -103,7 +107,7 @@ For a new dependency, reviewers should consider:
 - transitive dependency impact
 - whether the functionality is actually necessary
 
-Dependency review and Dependabot support this process but do not replace human judgment.
+Dependency Review and Dependabot support this process but do not replace human judgment.
 
 ## Generated AI changes
 
@@ -113,9 +117,12 @@ Do not merge code the team cannot explain or safely operate.
 
 ## Production
 
-Deployment, rollback, operations, and incident responsibilities are defined in:
+Deployment, rollback, environments, operations, and incident responsibilities are defined in:
 
+- `docs/ENVIRONMENTS.md`
 - `docs/RELEASES.md`
 - `docs/OPERATIONS.md`
 - `docs/SECURITY_MODEL.md`
 - `docs/ENTERPRISE_READINESS.md`
+
+Repository/agent access is not production authorization.

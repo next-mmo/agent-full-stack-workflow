@@ -13,17 +13,22 @@
 /.compound-engineering/ @your-org/platform-team
 /AGENTS.md @your-org/platform-team
 /CLAUDE.md @your-org/platform-team
+/CONTRIBUTING.md @your-org/platform-team
+/pnpm-lock.yaml @your-org/platform-team
 
 # Architecture / engineering governance
 /docs/ARCHITECTURE.md @your-org/architecture-team @your-org/platform-team
 /docs/adr/ @your-org/architecture-team
+/docs/AGENT_SYSTEM.md @your-org/platform-team @your-org/architecture-team
 /docs/WORKFLOW.md @your-org/platform-team
 /docs/GITHUB_PROTECTION.md @your-org/platform-team
 /docs/ENTERPRISE_READINESS.md @your-org/platform-team
 /docs/TESTING.md @your-org/platform-team
+/docs/ENVIRONMENTS.md @your-org/platform-team @your-org/security-team
 /docs/RELEASES.md @your-org/platform-team
 /docs/OPERATIONS.md @your-org/platform-team
 /docs/INTEGRATIONS.md @your-org/platform-team @your-org/security-team
+/docs/README.md @your-org/platform-team
 
 # Security-sensitive policy
 /SECURITY.md @your-org/security-team

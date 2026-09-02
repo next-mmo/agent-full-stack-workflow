@@ -1,6 +1,6 @@
 # Enterprise Agent System
 
-This repository separates permanent rules, reusable workflows, specialist reviewers, plugin workflows, and human governance.
+This repository separates permanent rules, reusable workflows, specialist reviewers, plugin workflows, automatic PR review, and human governance.
 
 ## Structure
 
@@ -22,7 +22,10 @@ docs/plans/                       CE plans (default artifact area)
 docs/solutions/                   compounded project learnings
 
 .github/CODEOWNERS                human ownership boundaries
-.github/workflows/ci.yml          automated quality gate
+.github/workflows/ci.yml          build/test quality gate
+.github/workflows/pr-policy.yml   PR evidence/policy gate
+.github/workflows/claude-auto-review.yml
+                                  automatic advisory Claude PR reviewer
 .github/pull_request_template.md  human-review evidence template
 ```
 
@@ -64,6 +67,28 @@ verification-reviewer
 ```
 
 They are configured as read-only/plan reviewers. They provide independent context but do not count as human approval.
+
+### Automatic GitHub Claude review
+
+`.github/workflows/claude-auto-review.yml` runs Anthropic's official `anthropics/claude-code-action` for non-draft pull requests when `ANTHROPIC_API_KEY` is configured in GitHub Actions secrets.
+
+It triggers on PR open, synchronize, reopen, and ready-for-review events. A new commit cancels an older in-progress review.
+
+The workflow intentionally has no source-write or merge permission. Claude may:
+
+```text
+Read repository instructions and changed files
+        ↓
+gh pr view / diff / checks
+        ↓
+Inline review comments
+        ↓
+One top-level advisory summary
+```
+
+Claude may not approve or merge. The automatic review is supplemental evidence only.
+
+See `docs/AI_REVIEW_POLICY.md` for reviewer severity and separation-of-duties rules.
 
 ### Compound Engineering
 
@@ -108,6 +133,18 @@ Useful discovery commands:
 /permissions
 ```
 
+## GitHub auto-review setup
+
+A repository or organization administrator must add the GitHub Actions secret:
+
+```text
+ANTHROPIC_API_KEY
+```
+
+Do not commit the key into YAML or repository files.
+
+For a larger enterprise rollout, centralize authentication through your approved organization secret or Anthropic workload identity design after platform/security review.
+
 ## Standard feature workflow
 
 ```text
@@ -151,7 +188,13 @@ pnpm lint + test + build + test:e2e
 /company-human-handoff
        |
        v
-Pull Request + CI + CODEOWNERS
+Pull Request
+       |
+       +--> CI + PR policy
+       |
+       +--> automatic Claude advisory review
+       |
+       +--> CODEOWNERS / human reviewer
        |
        v
 HUMAN APPROVAL
@@ -176,7 +219,7 @@ High-risk work should receive human plan review before implementation and explic
 
 ## What is intentionally not automated
 
-Repository configuration does not automatically merge PRs, bypass permissions, execute destructive migrations, or store company credentials.
+Repository configuration does not automatically merge PRs, approve PRs, bypass permissions, execute destructive migrations, or store company credentials.
 
 MCP integrations are not hardcoded because GitHub/Jira/Linear/cloud/database credentials and access policies are company-specific. Add approved MCP servers only through your organization's security process.
 

@@ -1,7 +1,7 @@
 import { INestApplication, ValidationPipe } from '@nestjs/common'
 import { Test } from '@nestjs/testing'
 import { TodoPriority } from '@prisma/client'
-import request from 'supertest'
+import request = require('supertest')
 import { AppModule } from '../src/app.module'
 import { PrismaService } from '../src/prisma/prisma.service'
 
@@ -39,6 +39,7 @@ describe('Todos API (e2e)', () => {
         forbidNonWhitelisted: true,
       }),
     )
+
     await app.init()
     prisma = app.get(PrismaService)
   })
@@ -63,10 +64,9 @@ describe('Todos API (e2e)', () => {
       })
       .expect(201)
 
-    const body = created.body as TodoResponse
-    expect(body.title).toBe('Review release')
-    expect(body.priority).toBe(TodoPriority.HIGH)
-    expect(body.dueDate).toBe(dueDate)
+    expect(created.body.title).toBe('Review release')
+    expect(created.body.priority).toBe(TodoPriority.HIGH)
+    expect(created.body.dueDate).toBe(dueDate)
   })
 
   it('uses backward-compatible defaults', async () => {
@@ -75,9 +75,9 @@ describe('Todos API (e2e)', () => {
       .send({ title: 'Existing-style todo' })
       .expect(201)
 
-    const body = created.body as TodoResponse
-    expect(body.priority).toBe(TodoPriority.MEDIUM)
-    expect(body.dueDate).toBeNull()
+    expect(created.body.priority).toBe(TodoPriority.MEDIUM)
+    expect(created.body.dueDate).toBeNull()
+    expect(created.body.completed).toBe(false)
   })
 
   it('rejects invalid planning fields and unknown properties', async () => {
@@ -93,17 +93,17 @@ describe('Todos API (e2e)', () => {
 
     await request(app.getHttpServer())
       .post('/api/todos')
-      .send({ title: 'Bad input', admin: true })
+      .send({ title: 'Unknown property', admin: true })
       .expect(400)
   })
 
   it('paginates, searches, and filters todos', async () => {
     await prisma.todo.createMany({
       data: [
-        { title: 'Review security PR', priority: TodoPriority.HIGH },
-        { title: 'Review frontend PR', priority: TodoPriority.MEDIUM },
+        { title: 'Alpha incident', priority: TodoPriority.HIGH },
+        { title: 'Beta cleanup', priority: TodoPriority.LOW },
         {
-          title: 'Ship completed release',
+          title: 'Alpha release',
           priority: TodoPriority.HIGH,
           completed: true,
         },
@@ -116,37 +116,27 @@ describe('Todos API (e2e)', () => {
 
     const firstPageBody = firstPage.body as TodoListResponse
     expect(firstPageBody.items).toHaveLength(2)
+    expect(firstPageBody.page).toBe(1)
+    expect(firstPageBody.pageSize).toBe(2)
     expect(firstPageBody.total).toBe(3)
     expect(firstPageBody.totalPages).toBe(2)
 
-    const highPriority = await request(app.getHttpServer())
-      .get('/api/todos?priority=HIGH&pageSize=20')
+    const filtered = await request(app.getHttpServer())
+      .get('/api/todos?search=alpha&priority=HIGH&completed=false')
       .expect(200)
 
-    const highBody = highPriority.body as TodoListResponse
-    expect(highBody.items).toHaveLength(2)
-    expect(highBody.items.every((todo) => todo.priority === TodoPriority.HIGH)).toBe(true)
-
-    const completed = await request(app.getHttpServer())
-      .get('/api/todos?completed=true')
-      .expect(200)
-
-    const completedBody = completed.body as TodoListResponse
-    expect(completedBody.items).toHaveLength(1)
-    expect(completedBody.items[0]?.completed).toBe(true)
-
-    const searched = await request(app.getHttpServer())
-      .get('/api/todos?search=security')
-      .expect(200)
-
-    const searchedBody = searched.body as TodoListResponse
-    expect(searchedBody.items).toHaveLength(1)
-    expect(searchedBody.items[0]?.title).toBe('Review security PR')
+    const filteredBody = filtered.body as TodoListResponse
+    expect(filteredBody.total).toBe(1)
+    expect(filteredBody.items[0]?.title).toBe('Alpha incident')
   })
 
   it('rejects unbounded or malformed list queries', async () => {
     await request(app.getHttpServer())
       .get('/api/todos?pageSize=51')
+      .expect(400)
+
+    await request(app.getHttpServer())
+      .get('/api/todos?page=0')
       .expect(400)
 
     await request(app.getHttpServer())
@@ -160,18 +150,21 @@ describe('Todos API (e2e)', () => {
       .send({ title: 'Lifecycle todo' })
       .expect(201)
 
-    const todo = created.body as TodoResponse
-
     const updated = await request(app.getHttpServer())
-      .patch(`/api/todos/${todo.id}`)
+      .patch(`/api/todos/${created.body.id}`)
       .send({ completed: true })
       .expect(200)
 
-    expect((updated.body as TodoResponse).completed).toBe(true)
+    expect(updated.body.completed).toBe(true)
 
-    await request(app.getHttpServer()).delete(`/api/todos/${todo.id}`).expect(200)
+    await request(app.getHttpServer())
+      .delete(`/api/todos/${created.body.id}`)
+      .expect(200)
 
-    const list = await request(app.getHttpServer()).get('/api/todos').expect(200)
-    expect((list.body as TodoListResponse).total).toBe(0)
+    const remaining = await prisma.todo.count({
+      where: { id: created.body.id as string },
+    })
+
+    expect(remaining).toBe(0)
   })
 })

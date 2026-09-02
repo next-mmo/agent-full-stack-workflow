@@ -2,6 +2,10 @@
   "name": "full-stack-ai",
   "private": true,
   "packageManager": "pnpm@10.15.0",
+  "engines": {
+    "node": ">=22 <23",
+    "pnpm": ">=10.15 <11"
+  },
   "scripts": {
     "dev": "pnpm -r --parallel --if-present dev",
     "build": "pnpm -r --if-present build",

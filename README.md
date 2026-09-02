@@ -88,7 +88,9 @@ Then run:
 4. None / skip
 ```
 
-It defaults integrations to **read/context only** and uses provider OAuth through `/mcp`. Credentials are never committed to the repository.
+It also asks whether the developer needs read/context access only or expects writes. Read/context only is the company default.
+
+Authentication is done interactively through `/mcp`; credentials are never committed to the repository.
 
 Useful Claude commands:
 

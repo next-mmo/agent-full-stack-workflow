@@ -28,9 +28,11 @@
 /docs/RELEASES.md @your-org/platform-team
 /docs/OPERATIONS.md @your-org/platform-team
 /docs/INTEGRATIONS.md @your-org/platform-team @your-org/security-team
+/docs/ONBOARDING.md @your-org/platform-team @your-org/security-team
 /docs/README.md @your-org/platform-team
 
-# Security-sensitive policy
+# Security / AI governance
 /SECURITY.md @your-org/security-team
 /docs/SECURITY_MODEL.md @your-org/security-team
+/docs/AI_DATA_POLICY.md @your-org/security-team @your-org/platform-team
 /docs/AI_REVIEW_POLICY.md @your-org/security-team @your-org/platform-team

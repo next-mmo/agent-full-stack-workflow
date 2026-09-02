@@ -43,12 +43,11 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 22
+          cache: pnpm
+          cache-dependency-path: pnpm-lock.yaml
 
-      # This starter intentionally bootstraps without a generated lockfile.
-      # First developer install should commit pnpm-lock.yaml, after which CI
-      # should switch to --frozen-lockfile and re-enable setup-node pnpm cache.
       - name: Install dependencies
-        run: pnpm install --frozen-lockfile=false
+        run: pnpm install --frozen-lockfile
 
       - name: Generate Prisma client
         run: pnpm db:generate

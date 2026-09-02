@@ -1,0 +1,12 @@
+node_modules
+dist
+coverage
+.env
+.env.*
+!.env.example
+.DS_Store
+.vscode
+.idea
+apps/api/prisma/dev.db
+.compound-engineering/*.local.yaml
+.context/compound-engineering/

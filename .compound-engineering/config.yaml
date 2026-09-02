@@ -1,0 +1,4 @@
+# Team-level Compound Engineering config.
+# Keep local-only overrides in config.local.yaml (gitignored).
+
+docs_root: docs

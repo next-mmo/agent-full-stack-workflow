@@ -1,0 +1,12 @@
+# IMPORTANT:
+# Replace `your-org` with your real GitHub organization before enabling
+# "Require review from Code Owners" in branch protection.
+
+/apps/api/ @your-org/backend-team
+/apps/api/prisma/ @your-org/backend-team
+/apps/web/ @your-org/frontend-team
+/.github/ @your-org/platform-team
+/CLAUDE.md @your-org/platform-team
+/docs/WORKFLOW.md @your-org/platform-team
+/docs/GITHUB_PROTECTION.md @your-org/platform-team
+/SECURITY.md @your-org/security-team

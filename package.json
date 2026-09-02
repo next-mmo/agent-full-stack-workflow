@@ -1,0 +1,16 @@
+{
+  "name": "full-stack-ai",
+  "private": true,
+  "packageManager": "pnpm@10.15.0",
+  "scripts": {
+    "dev": "pnpm -r --parallel --if-present dev",
+    "build": "pnpm -r --if-present build",
+    "lint": "pnpm -r --if-present lint",
+    "test": "pnpm -r --if-present test",
+    "test:e2e": "pnpm --dir apps/api test:e2e",
+    "db:up": "docker compose up -d",
+    "db:down": "docker compose down",
+    "db:migrate": "pnpm --dir apps/api prisma migrate dev",
+    "db:generate": "pnpm --dir apps/api prisma generate"
+  }
+}

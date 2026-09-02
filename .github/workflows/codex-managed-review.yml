@@ -1,12 +1,16 @@
-name: Codex Managed Review Trigger
+name: Codex Managed Re-review Trigger
 
-# IMPORTANT SECURITY NOTE:
-# This uses pull_request_target only to post a comment that triggers the
-# already-installed Codex GitHub App. It MUST NOT checkout, build, test,
-# source, or otherwise execute code from the pull request head.
+# Codex managed review is already configured for this repository to review
+# newly opened / ready PRs without a repository OPENAI_API_KEY.
+#
+# This workflow only fills the update gap by asking Codex to re-review when
+# new commits are pushed or a PR is reopened.
+#
+# SECURITY: pull_request_target is used only to post a metadata comment.
+# Never checkout, build, install, source, or execute pull-request head code here.
 on:
   pull_request_target:
-    types: [opened, synchronize, reopened, ready_for_review]
+    types: [synchronize, reopened]
 
 permissions:
   contents: read
@@ -14,11 +18,11 @@ permissions:
   issues: write
 
 concurrency:
-  group: codex-managed-review-${{ github.event.pull_request.number }}
+  group: codex-managed-rereview-${{ github.event.pull_request.number }}
   cancel-in-progress: true
 
 jobs:
-  request-codex-review:
+  request-codex-rereview:
     if: >-
       !github.event.pull_request.draft &&
       github.event.pull_request.user.login != 'chatgpt-codex-connector[bot]'
@@ -52,4 +56,4 @@ jobs:
               body: `@codex review\n\n${marker}`,
             })
 
-            core.info(`Requested managed Codex review for ${headSha}`)
+            core.info(`Requested managed Codex re-review for ${headSha}`)

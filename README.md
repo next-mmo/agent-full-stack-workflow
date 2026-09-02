@@ -12,7 +12,7 @@ It is intentionally more than a Todo demo: the sample application exists to exer
 - Vite + React + TypeScript
 - Tailwind + shadcn/ui-compatible primitives
 - TanStack Query
-- pnpm monorepo
+- pnpm monorepo with committed lockfile
 
 ### AI engineering
 
@@ -24,7 +24,7 @@ It is intentionally more than a Todo demo: the sample application exists to exer
 - official Atlassian Jira/Confluence plugin
 - official Figma plugin + Figma Agent Skills
 - Claude + managed Codex PR review layers
-- CI + PR evidence policy + CODEOWNERS
+- CI + dependency review + PR evidence policy + CODEOWNERS
 
 ---
 
@@ -82,6 +82,7 @@ AGENTS.md                         portable company/repo rules
 CLAUDE.md                         Claude Code project memory/router
 CONTRIBUTING.md                   contributor workflow
 SECURITY.md                       vulnerability-reporting entry point
+pnpm-lock.yaml                    reviewed reproducible dependency resolution
 
 apps/api/                         NestJS + Prisma backend
 apps/web/                         Vite + React frontend
@@ -120,7 +121,7 @@ See `docs/README.md` for the documentation map and reading paths.
 
 ```bash
 cp .env.example .env
-pnpm install
+pnpm install --frozen-lockfile
 pnpm db:up
 pnpm db:generate
 pnpm db:migrate
@@ -131,7 +132,7 @@ Frontend: `http://localhost:5173`
 API: `http://localhost:3000/api`  
 Swagger: `http://localhost:3000/docs`
 
-> **Bootstrap warning:** the repository still needs a committed `pnpm-lock.yaml` before it should be treated as a company-production baseline. Generate/commit it from a trusted developer install, then change CI to `pnpm install --frozen-lockfile` and enable pnpm caching.
+Dependency resolution is committed in `pnpm-lock.yaml`; CI also uses frozen installs and pnpm caching.
 
 ---
 
@@ -296,15 +297,16 @@ AI must **not**:
 
 Use `docs/ENTERPRISE_READINESS.md` as the authoritative checklist.
 
-Current important blockers/admin requirements include:
+Repository-level reproducibility, architecture documentation, agent governance, testing policy, dependency review, release/operations templates, and security/trust rules are now present.
 
-1. commit `pnpm-lock.yaml` and switch CI to frozen installs
-2. replace placeholder CODEOWNERS with real organization teams
-3. verify/enforce protected `main` rules and required human approval
-4. enable approved CodeQL/code scanning and secret scanning/push protection
-5. define real dev/staging/prod accounts, secrets, and access controls
-6. define observability/SLOs/on-call ownership
-7. define/test backup/restore and rollback
-8. complete a product-specific threat model when auth/sensitive data/payments are introduced
+The important remaining blockers/admin/product decisions are intentionally **not fabricated by this starter**:
 
-The repository contains the templates and agent rules for these controls, but repository files cannot pretend external company/platform configuration already exists.
+1. replace placeholder CODEOWNERS with real organization teams
+2. verify/enforce protected `main` rules and required human approval
+3. enable the company's approved CodeQL/code scanning and secret scanning/push protection
+4. define actual dev/staging/prod accounts, secret manager, deployment system, and production access controls
+5. define observability/SLOs/on-call ownership
+6. define and test backup/restore and real rollback implementation
+7. complete a product-specific threat model when auth, sensitive data, tenant boundaries, payments, or other high-risk features are introduced
+
+The repository contains the policy, templates, Skills, and review rules for these controls, but repository files cannot pretend external company/platform configuration already exists.

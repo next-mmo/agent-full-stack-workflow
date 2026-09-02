@@ -1,152 +1,64 @@
 # CLAUDE.md
 
-## Mission
+@AGENTS.md
+@docs/WORKFLOW.md
+@docs/AI_REVIEW_POLICY.md
 
-This repository uses AI as an engineering assistant inside a human-controlled software delivery process.
+## Claude Code-specific guidance
 
-AI can analyze, plan, implement, test, review, document, and prepare pull requests.
+The imported documents are authoritative project instructions. Do not duplicate or weaken them.
 
-A human reviewer owns approval and merge decisions.
-
-## Architecture
-
-```text
-apps/web
-  Vite + React + TypeScript + Tailwind + shadcn-style components
-  TanStack Query for server state
-
-apps/api
-  NestJS + Prisma + PostgreSQL
-```
-
-Package manager: pnpm only.
-
-## Mandatory human-control rules
-
-Never:
-- push directly to `main`
-- merge a pull request
-- approve your own work
-- disable required CI checks
-- remove CODEOWNERS protection
-- weaken authentication/authorization/security controls without explicit human direction
-- commit secrets
-- silently rewrite database history
-- delete tests only to make CI pass
-
-All substantial work must end as reviewable changes for a human.
-
-## Required development flow
-
-For substantial work:
-
-1. Understand existing code and relevant docs.
-2. Use `/ce-brainstorm` if requirements are ambiguous or product behavior needs discovery.
-3. Use `/ce-plan` before implementation.
-4. Use `/ce-work` to implement the approved plan.
-5. Use `/ce-simplify-code`.
-6. Run local validation.
-7. Use `/ce-code-review`.
-8. Use `/ce-test-browser` for user-facing changes when available.
-9. Use `/ce-compound` for reusable learnings.
-10. Prepare a PR summary for human review.
-
-Do not treat AI review as equivalent to human approval.
-
-## Backend rules
-
-Keep NestJS controllers thin.
-
-Preferred flow:
+This repository uses the EveryInc Compound Engineering plugin as the primary engineering workflow layer. For substantial feature work, prefer:
 
 ```text
-Controller -> Service -> Prisma
+/ce-brainstorm
+/ce-plan
+/ce-work
+/ce-simplify-code
+/ce-code-review
+/ce-test-browser
+/ce-compound
 ```
 
-Controllers:
-- parse HTTP inputs
-- apply auth/authorization boundaries
-- call services
-- return API responses
+Use `/ce-debug` for bug investigation.
 
-Services:
-- own business rules
-- coordinate data access
-- throw domain-appropriate errors
+If the Compound Engineering plugin is unavailable, say so and follow the same phases manually rather than skipping planning/review.
 
-Validate every external input.
+## Project skills
 
-Use DTOs with `class-validator`.
+Project-specific reusable procedures live under `.claude/skills/`.
 
-Use global validation:
+Use them when relevant, especially for:
 
-```ts
-new ValidationPipe({
-  whitelist: true,
-  transform: true,
-  forbidNonWhitelisted: true,
-})
-```
+- full-stack feature delivery
+- backend API changes
+- frontend feature work
+- database migrations
+- security-sensitive review
+- PR handoff to humans
 
-Use Prisma migrations for schema changes.
+These skills complement Compound Engineering. They define this repository's implementation and handoff expectations; they do not replace the CE planning/review loop.
 
-Never edit production data/schema directly as part of a code change.
+## Reviewer subagents
 
-## Frontend rules
+Read-only project reviewers live under `.claude/agents/`.
 
-Use:
-- TanStack Query for server state
-- Zustand only for client-only global state
-- local React state for component-local state
+Use them when independent context helps evaluate architecture, security, or test coverage. Their output is advisory and never counts as human approval.
 
-Do not copy API state into Zustand without a concrete reason.
+## Scoped instructions
 
-Use shared UI primitives from `src/components/ui` before inventing alternatives.
+When working under `apps/api` or `apps/web`, read and follow the nearest `AGENTS.md` in addition to the root rules.
 
-Every async screen must handle:
-- loading
-- error
-- empty
-- success
+## Final handoff
 
-## Security
+Do not merge, self-approve, or push directly to protected branches.
 
-Never log or commit:
-- passwords
-- tokens
-- API keys
-- credentials
-- private customer data
+End substantial work with a review-ready summary that clearly states:
 
-Authorization must be enforced on the backend.
-
-Frontend route guards are UX only.
-
-## Testing
-
-Before completion:
-
-```bash
-pnpm lint
-pnpm test
-pnpm build
-pnpm test:e2e
-```
-
-For user-facing work, browser-test the changed flow when tooling is available.
-
-Do not mark work complete with failing tests.
-
-## Pull request expectation
-
-Every PR should explain:
-- what changed
-- why
-- risk level
-- test evidence
-- migration impact
-- security impact
-- rollback plan
-- known limitations
-
-High-risk changes require explicit human sign-off.
+- implementation status
+- validation performed
+- risk and security impact
+- database/migration impact
+- rollback notes
+- unresolved items
+- that human approval is still required

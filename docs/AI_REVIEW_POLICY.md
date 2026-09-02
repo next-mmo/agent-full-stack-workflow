@@ -92,7 +92,9 @@ The review itself is produced by:
 chatgpt-codex-connector[bot]
 ```
 
-The Codex GitHub App must be installed for the repository and Codex code review must be enabled for the repository/workspace. The repository already verified that the connector receives manual `@codex review` requests.
+The Codex GitHub App must be installed for the repository and Codex code review must be enabled for the repository/workspace.
+
+This repository verified the connector path manually: `chatgpt-codex-connector[bot]` received a manual `@codex review` request and reacted to it. The automatic trigger uses `pull_request_target`, so GitHub will load that workflow from the protected base branch after this workflow is merged; it cannot fully self-test from the same PR that first introduces it.
 
 ### Security of the Codex trigger workflow
 

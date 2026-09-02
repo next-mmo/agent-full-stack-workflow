@@ -1,5 +1,15 @@
+import { TodoPriority } from '@prisma/client'
 import { ApiPropertyOptional } from '@nestjs/swagger'
-import { IsBoolean, IsOptional, IsString, MaxLength, MinLength } from 'class-validator'
+import {
+  IsBoolean,
+  IsDateString,
+  IsEnum,
+  IsOptional,
+  IsString,
+  MaxLength,
+  MinLength,
+  ValidateIf,
+} from 'class-validator'
 
 export class UpdateTodoDto {
   @ApiPropertyOptional()
@@ -13,4 +23,15 @@ export class UpdateTodoDto {
   @IsOptional()
   @IsBoolean()
   completed?: boolean
+
+  @ApiPropertyOptional({ enum: TodoPriority })
+  @IsOptional()
+  @IsEnum(TodoPriority)
+  priority?: TodoPriority
+
+  @ApiPropertyOptional({ example: '2026-09-05T09:00:00.000Z', nullable: true })
+  @IsOptional()
+  @ValidateIf((_, value: unknown) => value !== null)
+  @IsDateString()
+  dueDate?: string | null
 }

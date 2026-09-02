@@ -26,39 +26,42 @@ A green CI build alone does not mean the system is production-ready.
 | Specialist AI reviewers | ✅ Repository | `.claude/agents/` |
 | Compound Engineering | ✅ Repository | plugin config + CE workflow docs |
 | Jira/Figma context policy | ✅ Repository | approved plugins + read-first Skills |
-| Deterministic CI | ⚠️ Partial | tests/build exist; lockfile still required |
-| `pnpm-lock.yaml` | 🚫 Blocker | generate and commit; change CI to `--frozen-lockfile` |
+| Deterministic CI | ✅ Repository | committed `pnpm-lock.yaml`, frozen install, pnpm cache, lint/test/build/e2e |
 | Dependency update automation | ✅ Repository | Dependabot config |
 | Dependency vulnerability gate | ✅ Repository | dependency-review workflow |
+| Architecture documentation | ✅ Repository | diagrams + ADR policy + architecture reviewer |
+| Testing strategy | ✅ Repository | `docs/TESTING.md` + CI evidence |
+| Security/trust model | ✅ Repository | `docs/SECURITY_MODEL.md` + security reviewer |
+| Environment policy | ✅ Repository | `docs/ENVIRONMENTS.md` template/policy |
+| Release/rollback policy | ✅ Repository | `docs/RELEASES.md` + release-readiness Skill |
+| Operations/incident policy | ✅ Repository | `docs/OPERATIONS.md` + incident-assist Skill |
 | Code scanning | ⚙️ Admin | enable GitHub CodeQL default setup or approved equivalent |
 | Secret scanning | ⚙️ Admin | enable GitHub secret scanning/push protection where available |
-| Branch/ruleset enforcement | ⚙️ Admin | protect `main`; repository rulesets currently not verified/enforced by repo files |
+| Branch/ruleset enforcement | ⚙️ Admin | protect `main`; effective protection is not verified by repository files |
 | Required human approval | ⚙️ Admin | require PR review/CODEOWNERS in GitHub |
 | CODEOWNERS identities | 🚫 Blocker | replace `@your-org/...` placeholders with real teams |
 | Claude GitHub review | ⚙️ Admin | configure OAuth/API/WIF if desired |
 | Codex managed review | ✅/⚙️ | connector verified; organization controls still apply |
-| Environment separation | 🏗️ Product/infra | define dev/staging/prod accounts, URLs, secrets, data policy |
+| Real environment separation | 🏗️ Product/infra | fill actual dev/staging/prod accounts, URLs, secrets, data policy |
 | Production deployment | 🏗️ Product/infra | choose platform and deployment topology |
 | Observability | 🏗️ Product/infra | logs, metrics, traces, dashboards, alerts, ownership |
 | SLOs | 🏗️ Product/infra | define service objectives and alert thresholds |
 | Backup/restore | 🏗️ Product/infra | define RPO/RTO and test restore procedure |
-| Release/rollback | ✅ template + 🏗️ | follow `docs/RELEASES.md`; adapt to deployment platform |
-| Incident response | ✅ template + 🏗️ | follow `docs/OPERATIONS.md`; set contacts/on-call system |
 | Data classification/privacy | ✅ policy + 🏗️ | classify real product data before production |
 | Authentication/authorization | 🏗️ Product | starter intentionally does not invent auth requirements |
-| Artifact provenance | 🏗️ Release | add attestations when shipping binaries/images/packages |
+| Artifact provenance | 🏗️ Release | add/verify attestations when shipping binaries/images/packages |
 | License policy | ⚙️ Company | define accepted/restricted dependency licenses |
 
 ## Hard blockers before real company production
 
-1. Commit `pnpm-lock.yaml` and use frozen installs in CI.
-2. Replace placeholder CODEOWNERS with real people/teams.
-3. Verify/enforce protected `main` rules: PR-only, required CI, required human approval, CODEOWNERS, no force push.
-4. Enable approved code/secret/dependency security controls.
-5. Define dev/staging/prod environment separation and secret ownership.
-6. Define production observability, alerting, on-call ownership, backup/restore, and rollback.
-7. Complete a product-specific threat model for authentication, authorization, sensitive data, and external integrations.
-8. Run a restore/rollback exercise before relying on the service operationally.
+1. Replace placeholder CODEOWNERS with real people/teams.
+2. Verify/enforce protected `main` rules: PR-only, required CI, required human approval, CODEOWNERS, no force push.
+3. Enable the company's approved code-scanning and secret-scanning/push-protection controls.
+4. Define actual dev/staging/prod environment separation, secret ownership, and production access model.
+5. Define production observability, alerting/SLOs, on-call ownership, backup/restore, and deployment/rollback implementation.
+6. Complete a product-specific threat model for authentication, authorization, sensitive data, tenant boundaries, payments, or other high-risk features actually introduced.
+7. Run a restore/rollback exercise before relying on the service operationally.
+8. Replace all remaining operational placeholders (owners, URLs/accounts, systems) with real company configuration before production.
 
 ## Repository controls vs external controls
 
@@ -74,6 +77,17 @@ flowchart LR
 
 Repository files cannot prove that external administrative controls are enabled. The human/platform owner must verify them.
 
+## Evidence rule
+
+Mark an item complete only from concrete evidence, for example:
+
+- repository file/CI result for repository controls
+- GitHub/admin screenshot or settings/API evidence for platform controls
+- deployment/runbook/test evidence for production controls
+- named human ownership for accountable decisions
+
+Do not mark a row complete solely because an AI agent says it is complete.
+
 ## Review cadence
 
 Review this checklist:
@@ -82,6 +96,5 @@ Review this checklist:
 - when CI/repository security controls change
 - when a new external MCP/plugin is approved
 - when architecture or deployment topology changes
+- after a meaningful incident that exposes a control gap
 - at least once per major release cycle
-
-Do not mark a row complete solely because an AI agent says it is complete. Use concrete configuration/test evidence.

@@ -4,11 +4,16 @@
 
 AI is a contributor and reviewer aid, not the final authority.
 
-This repository runs an automatic Claude review on ready pull requests when company Claude authentication is configured.
+This repository supports two automated review layers:
 
-The automated review is implemented by `.github/workflows/claude-auto-review.yml` using Anthropic's official `anthropics/claude-code-action`.
+1. **Claude Auto Review** through Anthropic's official `anthropics/claude-code-action`.
+2. **Codex Managed Review** through the installed `chatgpt-codex-connector` GitHub App.
+
+Human review remains mandatory regardless of automated reviewer output.
 
 ## Automatic Claude review
+
+Implemented by `.github/workflows/claude-auto-review.yml`.
 
 The review runs when a non-draft pull request is:
 
@@ -36,27 +41,82 @@ It may not:
 
 Claude-authored bot PRs are skipped by this workflow to reduce direct self-review. AI-created changes committed under a human identity may still receive the automated review; this remains advisory and is not independent approval.
 
-## Authentication
+### Claude authentication
 
-The starter expects the GitHub Actions secret:
+Claude review needs Anthropic authentication, but it does **not** require an API key specifically.
+
+Supported starter options:
+
+```text
+CLAUDE_CODE_OAUTH_TOKEN
+```
+
+or
 
 ```text
 ANTHROPIC_API_KEY
 ```
 
-Prefer an organization-level Actions secret when many company repositories use the same controlled Anthropic account/workspace.
+The OAuth token is the preferred no-API-key option for supported Claude Code subscription accounts. For larger enterprise deployments, prefer Anthropic Workload Identity Federation so GitHub OIDC is exchanged for short-lived credentials instead of storing a long-lived secret.
 
-For a larger enterprise deployment, workload identity federation or another centrally managed Anthropic authentication method can replace a static repository secret after security/platform review.
+If neither credential is configured, Claude Auto Review intentionally becomes a successful no-op instead of breaking pull requests.
 
-Do not place credentials directly in workflow YAML.
+Never place credentials directly in workflow YAML.
+
+## Automatic Codex managed review
+
+Implemented by `.github/workflows/codex-managed-review.yml` plus the OpenAI Codex GitHub App.
+
+This path intentionally does **not** use `openai/codex-action`.
+
+`openai/codex-action` is a separate CI product that runs Codex CLI on the Actions runner and requires an API/provider key. The managed Codex GitHub reviewer instead uses the repository's connected Codex/ChatGPT account and does not require an `OPENAI_API_KEY` repository secret.
+
+The trigger workflow runs for a non-draft PR when it is:
+
+- opened
+- updated with new commits
+- reopened
+- marked ready for review
+
+For each new PR head SHA it posts one:
+
+```text
+@codex review
+```
+
+request with an invisible head-SHA marker so duplicate requests are not posted for the same commit.
+
+The review itself is produced by:
+
+```text
+chatgpt-codex-connector[bot]
+```
+
+The Codex GitHub App must be installed for the repository and Codex code review must be enabled for the repository/workspace. The repository already verified that the connector receives manual `@codex review` requests.
+
+### Security of the Codex trigger workflow
+
+The trigger uses `pull_request_target` only because it needs permission to post a PR comment.
+
+It must remain metadata-only. It must **never**:
+
+- checkout the PR head
+- execute PR scripts
+- install dependencies from the PR
+- build or test untrusted PR code
+- expose repository secrets to PR code
+
+Its only job is to inspect PR metadata/comments and post the Codex review request.
 
 ## Separation of duties
 
-The same AI session may implement and run an AI review, but that review does not count as independent approval.
+The same AI session may implement and run an AI review, but that review does not count as independent human approval.
 
 Human review is mandatory.
 
-The automatic Claude review is a quality signal, not a GitHub approval and not a required substitute for CODEOWNERS.
+Claude and Codex reviews are quality signals, not GitHub approvals and not substitutes for CODEOWNERS.
+
+For important changes, two different model families reviewing the same PR can improve defect discovery, but humans remain accountable for deciding which findings are valid and whether the change may merge.
 
 ## Required human review
 
@@ -75,7 +135,7 @@ Additional domain review is required for:
 
 ## Automated finding severity
 
-Claude review findings use:
+Automated review findings should use:
 
 - `P0` — critical security, data-loss, or production blocker
 - `P1` — correctness/security issue that should block merge
@@ -97,11 +157,11 @@ Before handoff, AI should provide:
 8. rollback notes
 9. unresolved questions
 
-The automatic reviewer should additionally report:
+Automated reviewers should additionally report or surface:
 
-- finding counts by severity
+- actionable correctness/security findings
 - whether database/security/API-contract surfaces changed
-- visible CI/test evidence
+- visible CI/test evidence when available
 - remaining areas for human review
 
 ## Prohibited AI claims

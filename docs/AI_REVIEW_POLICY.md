@@ -65,18 +65,26 @@ Never place credentials directly in workflow YAML.
 
 ## Automatic Codex managed review
 
-Implemented by `.github/workflows/codex-managed-review.yml` plus the OpenAI Codex GitHub App.
+The primary reviewer is the OpenAI Codex GitHub App, not `openai/codex-action`.
 
-This path intentionally does **not** use `openai/codex-action`.
+The managed reviewer uses the repository/workspace's connected Codex/ChatGPT account and does not require an `OPENAI_API_KEY` repository secret.
 
-`openai/codex-action` is a separate CI product that runs Codex CLI on the Actions runner and requires an API/provider key. The managed Codex GitHub reviewer instead uses the repository's connected Codex/ChatGPT account and does not require an `OPENAI_API_KEY` repository secret.
+This repository has already verified the managed path: `chatgpt-codex-connector` submitted an actual `COMMENTED` review on PR #7 after `@codex review` was requested.
 
-The trigger workflow runs for a non-draft PR when it is:
+Codex's managed GitHub review handles normal review entry points such as opening a PR for review, marking a draft ready, or explicitly commenting:
 
-- opened
-- updated with new commits
-- reopened
-- marked ready for review
+```text
+@codex review
+```
+
+### Re-review after new commits
+
+`.github/workflows/codex-managed-review.yml` is intentionally a small companion workflow, not the reviewer itself.
+
+It exists only to request a fresh managed Codex review when:
+
+- new commits are pushed to an existing non-draft PR (`synchronize`)
+- a non-draft PR is reopened
 
 For each new PR head SHA it posts one:
 
@@ -86,17 +94,21 @@ For each new PR head SHA it posts one:
 
 request with an invisible head-SHA marker so duplicate requests are not posted for the same commit.
 
-The review itself is produced by:
+The review itself is still produced by:
 
 ```text
 chatgpt-codex-connector[bot]
 ```
 
-The Codex GitHub App must be installed for the repository and Codex code review must be enabled for the repository/workspace.
+The Codex GitHub App must be installed and code review enabled for the repository/workspace.
 
-This repository verified the connector path manually: `chatgpt-codex-connector[bot]` received a manual `@codex review` request and reacted to it. The automatic trigger uses `pull_request_target`, so GitHub will load that workflow from the protected base branch after this workflow is merged; it cannot fully self-test from the same PR that first introduces it.
+Because the companion workflow uses `pull_request_target`, GitHub loads it from the protected base branch. Therefore the first PR that introduces this workflow cannot fully self-test its automatic re-review behavior; it becomes active after merge. The managed Codex reviewer itself was already verified manually on this PR.
 
-### Security of the Codex trigger workflow
+### Why not `openai/codex-action` here?
+
+`openai/codex-action` runs Codex CLI inside GitHub Actions and requires an API/provider credential. That can be useful for custom CI agents, but it is not needed for this repository's managed Codex review path.
+
+### Security of the Codex re-review trigger
 
 The trigger uses `pull_request_target` only because it needs permission to post a PR comment.
 
@@ -108,7 +120,7 @@ It must remain metadata-only. It must **never**:
 - build or test untrusted PR code
 - expose repository secrets to PR code
 
-Its only job is to inspect PR metadata/comments and post the Codex review request.
+Its only job is to inspect PR metadata/comments and post the managed Codex review request.
 
 ## Separation of duties
 

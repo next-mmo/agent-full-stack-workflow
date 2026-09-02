@@ -9,8 +9,10 @@ Use this page to find the authoritative document instead of duplicating rules ac
 | `WORKFLOW.md` | Human-reviewed engineering lifecycle | delivery process/gates change |
 | `TESTING.md` | Test levels and evidence strategy | testing approach changes |
 | `SECURITY_MODEL.md` | Security/trust/prompt-injection/data model | security boundary/policy changes |
+| `AI_DATA_POLICY.md` | What company data AI/models/plugins may receive | AI provider/data classification/exfiltration policy changes |
 | `AI_REVIEW_POLICY.md` | Claude/Codex advisory review governance | AI reviewer/auth/permission changes |
 | `INTEGRATIONS.md` | Jira/Figma/MCP integration policy | approved integration/access changes |
+| `ONBOARDING.md` | Developer/agent onboarding, production access separation, offboarding | identity/access/onboarding process changes |
 | `ENVIRONMENTS.md` | Environment/configuration/data/secret separation | environment/configuration policy changes |
 | `RELEASES.md` | Release, migration promotion, rollback | release/deployment policy changes |
 | `OPERATIONS.md` | Observability, incidents, backup/restore runbook | operational/on-call behavior changes |
@@ -43,6 +45,8 @@ AGENTS.md
   ↓
 CONTRIBUTING.md
   ↓
+docs/SECURITY_MODEL.md + docs/AI_DATA_POLICY.md
+  ↓
 relevant scoped docs / source
 ```
 
@@ -52,6 +56,8 @@ relevant scoped docs / source
 README.md
   ↓
 CLAUDE.md + AGENTS.md
+  ↓
+docs/AI_DATA_POLICY.md
   ↓
 /ce-setup
   ↓
@@ -85,6 +91,18 @@ SECURITY_MODEL.md
 /company-release-readiness or /company-incident-assist
   ↓
 authorized human owner
+```
+
+### Joiner / leaver
+
+```text
+ONBOARDING.md
+  ↓
+company identity/team access
+  ↓
+repo + approved AI/MCP access
+  ↓
+separate production access when justified
 ```
 
 ## Source-of-truth rule

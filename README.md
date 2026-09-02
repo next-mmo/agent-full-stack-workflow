@@ -1,47 +1,122 @@
 # full-stack-ai
 
-Enterprise-oriented Todo starter for human-reviewed AI-assisted development.
+Enterprise-oriented full-stack starter for **human-reviewed AI-assisted engineering**.
+
+It is intentionally more than a Todo demo: the sample application exists to exercise architecture, testing, migrations, AI workflows, external context, CI, review, release, and operational governance.
 
 ## Stack
+
+### Application
 
 - NestJS + Prisma + PostgreSQL
 - Vite + React + TypeScript
 - Tailwind + shadcn/ui-compatible primitives
 - TanStack Query
 - pnpm monorepo
-- Claude Code
-- EveryInc Compound Engineering
-- Official Atlassian (Jira/Confluence) Claude plugin
-- Official Figma Claude plugin + Figma Agent Skills
-- Claude + Codex automated PR review layers
 
-## Agent system
+### AI engineering
+
+- portable `AGENTS.md`
+- Claude Code + scoped `CLAUDE.md`
+- EveryInc Compound Engineering
+- repository-specific Agent Skills
+- read-only architecture/security/verification subagents
+- official Atlassian Jira/Confluence plugin
+- official Figma plugin + Figma Agent Skills
+- Claude + managed Codex PR review layers
+- CI + PR evidence policy + CODEOWNERS
+
+---
+
+# Architecture
+
+Read **`docs/ARCHITECTURE.md` first** for the full runtime and AI-engineering diagrams.
+
+Application flow:
+
+```text
+React UI
+  ↓
+TanStack Query
+  ↓
+Typed API client
+  ↓ HTTP /api
+Nest Controller
+  ↓
+DTO validation
+  ↓
+Service
+  ↓
+Prisma
+  ↓
+PostgreSQL
+```
+
+AI engineering model:
+
+```text
+                  LLM
+                   │
+                Harness
+                   │
+        ┌──────────┼──────────┐
+        ▼          ▼          ▼
+    AGENTS.md    Skills      MCP / Plugins
+      Rules      Playbooks    Tools / Data
+        │          │          │
+        └──────────┴──────────┘
+                   │
+             Repo / CI / PR
+                   │
+          Human review + approval
+```
+
+**LLM = brain, Harness = worker loop, AGENTS = rules, Skills = playbooks, MCP = external tools/data, Human = accountable approver.**
+
+---
+
+# Repository structure
 
 ```text
 AGENTS.md                         portable company/repo rules
-CLAUDE.md                         Claude Code project memory
-apps/api/AGENTS.md                backend rules
-apps/web/AGENTS.md                frontend rules
+CLAUDE.md                         Claude Code project memory/router
+CONTRIBUTING.md                   contributor workflow
+SECURITY.md                       vulnerability-reporting entry point
+
+apps/api/                         NestJS + Prisma backend
+apps/web/                         Vite + React frontend
 
 .claude/settings.json             permissions + approved plugin onboarding
-.claude/skills/                   project-specific reusable skills
-.claude/agents/                   read-only reviewer subagents
+.claude/skills/                   company/project reusable procedures
+.claude/agents/                   read-only specialist reviewers
+.compound-engineering/            Compound Engineering configuration
 
-.compound-engineering/            Compound Engineering config
-.github/CODEOWNERS                human ownership
-.github/workflows/ci.yml          deterministic quality gate
+.github/CODEOWNERS                human ownership boundaries
+.github/workflows/ci.yml          deterministic app quality gate
 .github/workflows/pr-policy.yml   PR evidence gate
+.github/workflows/dependency-review.yml
 .github/workflows/claude-auto-review.yml
 .github/workflows/codex-managed-review.yml
+
+docs/ARCHITECTURE.md              runtime + AI system architecture/diagrams
+docs/AGENT_SYSTEM.md              detailed agent-system design
+docs/TESTING.md                   testing/evidence strategy
+docs/SECURITY_MODEL.md            trust/security model
+docs/INTEGRATIONS.md              Jira/Figma/MCP policy
+docs/ENVIRONMENTS.md              environment/configuration policy
+docs/RELEASES.md                  release/migration/rollback policy
+docs/OPERATIONS.md                observability/incident/runbook baseline
+docs/ENTERPRISE_READINESS.md      production-readiness checklist
+docs/adr/                         durable architecture decisions
+docs/plans/                       implementation plans
+docs/solutions/                   compounded project learning
 ```
 
-See:
+See `docs/README.md` for the documentation map and reading paths.
 
-- `docs/AGENT_SYSTEM.md`
-- `docs/INTEGRATIONS.md`
-- `docs/AI_REVIEW_POLICY.md`
+---
 
-## Quick start
+# Quick start
 
 ```bash
 cp .env.example .env
@@ -52,13 +127,17 @@ pnpm db:migrate
 pnpm dev
 ```
 
-Frontend: http://localhost:5173  
-API: http://localhost:3000/api  
-Swagger: http://localhost:3000/docs
+Frontend: `http://localhost:5173`  
+API: `http://localhost:3000/api`  
+Swagger: `http://localhost:3000/docs`
 
-## Claude Code onboarding
+> **Bootstrap warning:** the repository still needs a committed `pnpm-lock.yaml` before it should be treated as a company-production baseline. Generate/commit it from a trusted developer install, then change CI to `pnpm install --frozen-lockfile` and enable pnpm caching.
 
-Start from the repository root:
+---
+
+# Claude Code onboarding
+
+Start from repository root:
 
 ```bash
 claude
@@ -79,18 +158,9 @@ Then run:
 /company-integrations
 ```
 
-`/company-integrations` asks the developer to select:
+`/company-integrations` asks the developer to select Jira/Confluence, Figma, both, or neither, and whether the intended mode is read/context only or includes writes. Read/context is the company default.
 
-```text
-1. Jira + Confluence
-2. Figma
-3. Both
-4. None / skip
-```
-
-It also asks whether the developer needs read/context access only or expects writes. Read/context only is the company default.
-
-Authentication is done interactively through `/mcp`; credentials are never committed to the repository.
+Authenticate integrations interactively through `/mcp`. Never commit credentials.
 
 Useful Claude commands:
 
@@ -103,48 +173,53 @@ Useful Claude commands:
 /mcp
 ```
 
-## Project Skills
+---
+
+# Project Skills
 
 ```text
 /company-fullstack-feature
 /company-backend-api
 /company-frontend-feature
 /company-db-migration
+/company-architecture-change
 /company-security-check
-/company-human-handoff
 /company-integrations
 /company-jira-context
 /company-figma-design
+/company-release-readiness
+/company-incident-assist
+/company-human-handoff
 ```
 
-When a full-stack task explicitly references Jira/Confluence or Figma, the project workflow uses that context before planning/implementation. It does not browse unrelated company data merely because an integration is connected.
+Project Skills complement Compound Engineering; they do not replace planning/review.
 
-## Enterprise feature workflow
+---
+
+# Enterprise feature workflow
 
 ```text
 Jira / requirement / Figma
       ↓
-External context when explicitly referenced
+Explicit external context when relevant
       ↓
 /ce-brainstorm
       ↓
 /ce-plan
       ↓
-Human plan review when risk is high
+Human plan / architecture review when high risk
       ↓
-/ce-work
-      ↓
-Project Skills
+/ce-work + project Skills
       ↓
 /ce-simplify-code
       ↓
-Lint + tests + build + e2e
+Lint + unit + build + API e2e
       ↓
 /ce-code-review
       ↓
-Reviewer subagents
+Architecture / Security / Verification reviewers
       ↓
-/ce-test-browser
+/ce-test-browser for user-facing behavior
       ↓
 /ce-compound
       ↓
@@ -152,19 +227,26 @@ Reviewer subagents
       ↓
 Pull Request
       ├─ CI
-      ├─ PR policy
+      ├─ PR evidence policy
+      ├─ Dependency Review
       ├─ Claude advisory review
       ├─ Codex managed review
-      └─ CODEOWNERS
+      └─ CODEOWNERS / domain reviewers
       ↓
 HUMAN APPROVAL
       ↓
 Merge
+      ↓
+Human-owned release process
 ```
 
-## Automated AI reviews
+AI implementation, AI review, and green CI are evidence—not accountable approval.
 
-### Claude
+---
+
+# Automated AI reviews
+
+## Claude
 
 The Anthropic GitHub Action supports either:
 
@@ -178,54 +260,51 @@ or:
 ANTHROPIC_API_KEY
 ```
 
-So an Anthropic API key is **not required specifically**. If neither credential is configured, the Claude review workflow safely no-ops.
+If neither is configured, Claude review intentionally becomes a successful no-op rather than blocking PRs. Enterprise deployments may use centrally managed authentication/WIF according to platform/security policy.
 
-For enterprise deployment, prefer organization-managed authentication or Anthropic Workload Identity Federation.
+## Codex
 
-### Codex
+The primary Codex reviewer is the managed `chatgpt-codex-connector` GitHub App, not `openai/codex-action`.
 
-The primary Codex reviewer is the installed managed `chatgpt-codex-connector` GitHub App, not `openai/codex-action`.
+The managed reviewer uses the connected Codex/ChatGPT account, so this repository does not need an `OPENAI_API_KEY` for that review path.
 
-It uses the connected Codex/ChatGPT account, so this repository does not need an `OPENAI_API_KEY` for managed review.
+Managed Codex handles normal review entry points. The metadata-only companion workflow requests a fresh `@codex review` after new PR commits/reopen; it must never checkout or execute untrusted PR-head code.
 
-Managed Codex handles normal PR review entry points (open/ready or `@codex review`). The small `.github/workflows/codex-managed-review.yml` companion only requests a fresh `@codex review` after new commits are pushed or a PR is reopened, with one request per head SHA.
+Human approval remains mandatory regardless of AI output.
 
-Human approval remains mandatory regardless of Claude/Codex output.
+---
 
-## Reviewer subagents
+# Company controls
 
-```text
-architecture-reviewer
-security-reviewer
-verification-reviewer
-```
-
-They are advisory and do not replace an authorized human reviewer.
-
-## Company controls
-
-AI may propose, implement, test, review, document, gather approved external context, and prepare pull requests.
+AI may propose, implement, test, review, document, gather explicitly relevant approved external context, prepare release evidence, assist incident investigation, and prepare pull requests.
 
 AI must **not**:
 
-- merge its own PR
-- self-approve
+- merge/self-approve around required humans
 - bypass CI/CODEOWNERS/branch protection
 - push directly to protected branches
-- expose company credentials
+- expose credentials or sensitive company/customer data
 - perform destructive production operations
-- perform high-impact Jira/Confluence bulk mutations without confirmation
-- write to Figma unless the user explicitly requests a design mutation
-- weaken security-sensitive controls without explicit human direction
+- treat repository access as production authorization
+- transition/bulk-update Jira or write Figma without explicit intent
+- weaken security controls without explicit human direction
+- declare a release/incident successful without human-owned verification
 
-## Before production company use
+---
 
-1. Replace placeholder owners in `.github/CODEOWNERS` with real GitHub teams/users.
-2. Configure the `main` branch/ruleset using `docs/GITHUB_PROTECTION.md`.
-3. Run `/ce-setup` on the first trusted checkout.
-4. Run `/company-integrations` and authenticate only approved external systems.
-5. Put secrets in the organization's approved secret manager, never in the repository.
-6. Configure Atlassian/Figma organization-level access and audit policy.
-7. Configure Claude review authentication if the company wants Claude GitHub review.
-8. Install/enable the Codex GitHub connector if the company wants managed Codex review.
-9. Require human approval for every PR; require domain/security owners for high-risk changes.
+# Before real company production
+
+Use `docs/ENTERPRISE_READINESS.md` as the authoritative checklist.
+
+Current important blockers/admin requirements include:
+
+1. commit `pnpm-lock.yaml` and switch CI to frozen installs
+2. replace placeholder CODEOWNERS with real organization teams
+3. verify/enforce protected `main` rules and required human approval
+4. enable approved CodeQL/code scanning and secret scanning/push protection
+5. define real dev/staging/prod accounts, secrets, and access controls
+6. define observability/SLOs/on-call ownership
+7. define/test backup/restore and rollback
+8. complete a product-specific threat model when auth/sensitive data/payments are introduced
+
+The repository contains the templates and agent rules for these controls, but repository files cannot pretend external company/platform configuration already exists.

@@ -10,7 +10,7 @@ This starter pre-bundles these plugins from Anthropic's official Claude Code mar
 | Figma | `figma@claude-plugins-official` | Design context + official Figma Agent Skills | Read/context first |
 | Compound Engineering | `compound-engineering@compound-engineering-plugin` | Brainstorm/plan/work/review/compound workflow | Enabled |
 
-The plugins are declared in `.claude/settings.json` so a developer who trusts the checkout can be prompted to install/enable the approved integrations.
+The plugins are declared in `.claude/settings.json` so a developer who trusts the checkout can be prompted to install/enable the approved integrations. This uses Claude Code's team marketplace pattern (`extraKnownMarketplaces` + `enabledPlugins`).
 
 No provider credentials are stored in the repository.
 

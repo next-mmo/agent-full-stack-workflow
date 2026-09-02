@@ -7,12 +7,22 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+enum TodoPriority {
+  LOW
+  MEDIUM
+  HIGH
+}
+
 model Todo {
-  id        String   @id @default(cuid())
+  id        String       @id @default(cuid())
   title     String
-  completed Boolean  @default(false)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  completed Boolean      @default(false)
+  priority  TodoPriority @default(MEDIUM)
+  dueDate   DateTime?
+  createdAt DateTime     @default(now())
+  updatedAt DateTime     @updatedAt
 
   @@index([createdAt])
+  @@index([completed, createdAt])
+  @@index([priority, createdAt])
 }

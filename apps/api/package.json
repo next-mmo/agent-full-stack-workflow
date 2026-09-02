@@ -5,8 +5,8 @@
     "dev": "nest start --watch",
     "build": "nest build",
     "lint": "eslint {src,test}/**/*.ts",
-    "test": "jest",
-    "test:e2e": "jest --config ./test/jest-e2e.json",
+    "test": "jest --config ./jest.config.cjs",
+    "test:e2e": "jest --config ./test/jest-e2e.json --runInBand",
     "prisma": "prisma"
   },
   "dependencies": {

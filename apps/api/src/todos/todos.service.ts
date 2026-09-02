@@ -1,22 +1,60 @@
+import { Prisma } from '@prisma/client'
 import { Injectable, NotFoundException } from '@nestjs/common'
 import { PrismaService } from '../prisma/prisma.service'
 import { CreateTodoDto } from './dto/create-todo.dto'
+import { ListTodosQueryDto } from './dto/list-todos-query.dto'
 import { UpdateTodoDto } from './dto/update-todo.dto'
 
 @Injectable()
 export class TodosService {
   constructor(private readonly prisma: PrismaService) {}
 
-  list() {
-    return this.prisma.todo.findMany({
-      orderBy: { createdAt: 'desc' },
-    })
+  async list(query: ListTodosQueryDto) {
+    const search = query.search?.trim()
+    const where: Prisma.TodoWhereInput = {
+      ...(search
+        ? {
+            title: {
+              contains: search,
+              mode: 'insensitive',
+            },
+          }
+        : {}),
+      ...(query.completed !== undefined
+        ? { completed: query.completed }
+        : {}),
+      ...(query.priority !== undefined ? { priority: query.priority } : {}),
+    }
+
+    const skip = (query.page - 1) * query.pageSize
+
+    const [items, total] = await this.prisma.$transaction([
+      this.prisma.todo.findMany({
+        where,
+        orderBy: { createdAt: 'desc' },
+        skip,
+        take: query.pageSize,
+      }),
+      this.prisma.todo.count({ where }),
+    ])
+
+    return {
+      items,
+      page: query.page,
+      pageSize: query.pageSize,
+      total,
+      totalPages: Math.max(1, Math.ceil(total / query.pageSize)),
+    }
   }
 
   create(dto: CreateTodoDto) {
     return this.prisma.todo.create({
       data: {
         title: dto.title.trim(),
+        ...(dto.priority !== undefined ? { priority: dto.priority } : {}),
+        ...(dto.dueDate !== undefined
+          ? { dueDate: new Date(dto.dueDate) }
+          : {}),
       },
     })
   }
@@ -33,6 +71,10 @@ export class TodosService {
       data: {
         ...(dto.title !== undefined ? { title: dto.title.trim() } : {}),
         ...(dto.completed !== undefined ? { completed: dto.completed } : {}),
+        ...(dto.priority !== undefined ? { priority: dto.priority } : {}),
+        ...(dto.dueDate !== undefined
+          ? { dueDate: dto.dueDate === null ? null : new Date(dto.dueDate) }
+          : {}),
       },
     })
   }

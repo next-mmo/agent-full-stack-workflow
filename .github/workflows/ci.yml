@@ -43,12 +43,39 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 22
-          cache: pnpm
 
-      - run: pnpm install --frozen-lockfile=false
-      - run: pnpm db:generate
-      - run: pnpm --dir apps/api prisma migrate deploy
-      - run: pnpm lint
-      - run: pnpm test
-      - run: pnpm build
-      - run: pnpm test:e2e
+      # This starter intentionally bootstraps without a generated lockfile.
+      # First developer install should commit pnpm-lock.yaml, after which CI
+      # should switch to --frozen-lockfile and re-enable setup-node pnpm cache.
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile=false
+
+      - name: Generate Prisma client
+        run: pnpm db:generate
+
+      - name: Apply migrations
+        run: pnpm --dir apps/api prisma migrate deploy
+
+      - name: Lint API
+        run: pnpm --dir apps/api lint
+
+      - name: Lint web
+        run: pnpm --dir apps/web lint
+
+      - name: Test API
+        run: pnpm --dir apps/api test
+
+      - name: Test web
+        run: pnpm --dir apps/web test
+
+      - name: Build API
+        run: pnpm --dir apps/api build
+
+      - name: Typecheck web
+        run: pnpm --dir apps/web exec tsc -b
+
+      - name: Bundle web
+        run: pnpm --dir apps/web exec vite build
+
+      - name: API e2e
+        run: pnpm --dir apps/api test:e2e

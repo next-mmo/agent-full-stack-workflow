@@ -1,4 +1,23 @@
+const author = process.env.PR_AUTHOR ?? ''
+const title = process.env.PR_TITLE ?? ''
 const body = process.env.PR_BODY ?? ''
+
+const isDependabot = author === 'dependabot[bot]'
+const isDependencyTitle = /^chore\(deps(?:-dev)?\):\s+bump\b/i.test(title)
+
+if (isDependabot) {
+  if (!isDependencyTitle) {
+    console.error(
+      'Dependabot-authored PR does not match the approved dependency-update title pattern.',
+    )
+    process.exit(1)
+  }
+
+  console.log(
+    'Verified Dependabot dependency PR: human PR-body evidence sections are not required. Normal CI, security checks, and human approval still apply.',
+  )
+  process.exit(0)
+}
 
 const requiredSections = [
   'Summary',

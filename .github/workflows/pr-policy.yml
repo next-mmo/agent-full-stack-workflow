@@ -15,5 +15,7 @@ jobs:
 
       - name: Validate PR evidence
         env:
+          PR_AUTHOR: ${{ github.event.pull_request.user.login }}
+          PR_TITLE: ${{ github.event.pull_request.title }}
           PR_BODY: ${{ github.event.pull_request.body }}
         run: node .github/scripts/validate-pr-body.mjs

@@ -1,0 +1,47 @@
+name: Bootstrap pnpm lockfile
+
+on:
+  push:
+    branches: [ci/claude-auto-review]
+    paths:
+      - package.json
+      - pnpm-workspace.yaml
+      - apps/*/package.json
+      - .github/workflows/bootstrap-lockfile.yml
+
+permissions:
+  contents: write
+
+jobs:
+  generate:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ci/claude-auto-review
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10.15.0
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Generate lockfile
+        run: pnpm install --lockfile-only
+
+      - name: Commit lockfile to review branch
+        shell: bash
+        run: |
+          test -f pnpm-lock.yaml
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add pnpm-lock.yaml
+          if git diff --cached --quiet; then
+            echo "Lockfile already current."
+            exit 0
+          fi
+          git commit -m "chore: generate pnpm lockfile"
+          git push origin HEAD:ci/claude-auto-review

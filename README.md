@@ -184,15 +184,11 @@ For enterprise deployment, prefer organization-managed authentication or Anthrop
 
 ### Codex
 
-The Codex managed-review path intentionally does **not** use `openai/codex-action`.
+The primary Codex reviewer is the installed managed `chatgpt-codex-connector` GitHub App, not `openai/codex-action`.
 
-The GitHub workflow requests:
+It uses the connected Codex/ChatGPT account, so this repository does not need an `OPENAI_API_KEY` for managed review.
 
-```text
-@codex review
-```
-
-once per PR head. The installed `chatgpt-codex-connector[bot]` performs the managed review through the connected Codex/ChatGPT account, so the repository does not need an `OPENAI_API_KEY` for this path.
+Managed Codex handles normal PR review entry points (open/ready or `@codex review`). The small `.github/workflows/codex-managed-review.yml` companion only requests a fresh `@codex review` after new commits are pushed or a PR is reopened, with one request per head SHA.
 
 Human approval remains mandatory regardless of Claude/Codex output.
 

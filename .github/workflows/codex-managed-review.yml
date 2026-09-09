@@ -29,7 +29,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Trigger managed Codex review once per PR head
-        uses: actions/github-script@v7
+        uses: actions/github-script@v9
         with:
           github-token: ${{ github.token }}
           script: |
